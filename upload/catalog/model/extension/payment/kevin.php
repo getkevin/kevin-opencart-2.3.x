@@ -64,7 +64,6 @@ class ModelExtensionPaymentKevin extends Model
         $payment_methods = $project_settings['paymentMethods'];
 
         $contries = $kevinClient->auth()->getCountries();
-        //$countryCodes = array("LT", "LV", "EE");
         $countryCodes = $contries['data'];
         if ((in_array($current_country_code, $countryCodes) || in_array('card', $payment_methods)) && $status) {
             $status = true;

@@ -808,7 +808,7 @@ class ControllerExtensionPaymentKevin extends Controller
             $this->error['client_company'] = $this->language->get('error_client_c_symbol');
         }
 
-        //order statuses
+        // order statuses
         if (empty($this->request->post['kevin_started_status_id'])) {
             $this->error['started_status'] = $this->language->get('error_started_status');
         }

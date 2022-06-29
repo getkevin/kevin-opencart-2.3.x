@@ -64,7 +64,7 @@ $_['text_sandbox_alert'] = '<span style = "font-weight: 600; color: red;"> kevin
 $_['text_refund_warning'] = '<span style = "font-weight: 600; color: red;"> kevin. </span>Vrácení peněz není povoleno! Kontakt <a style = "font-weight: 800; color: red;" href = "https://kevin.eu" target = "_blank"> kevin. </a>';
 $_['text_refund_prepare'] = 'Částka připravená k vrácení: %1$s. Stav vrácení peněz: "%2$s". Číslo objednávky %3$s.';
 
-//Button
+// Button
 $_['button_cancel'] = 'Zrušit';
 $_['button_edit'] = 'Upravit';
 $_['button_refund'] = 'Vytvořit refundaci';

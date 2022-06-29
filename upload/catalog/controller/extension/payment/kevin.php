@@ -846,7 +846,8 @@ class ControllerExtensionPaymentKevin extends Controller
             header($this->request->server['SERVER_PROTOCOL'].' 200 ');
         } else {
             if ($get_refund_status['statusGroup'] != 'completed') {
-                $query_refunded_order_status = $this->model_extension_payment_kevin->updateWebhookKevinRefund($update_order); //do not change statusGroup till signatures match
+                // do not change statusGroup till signatures match
+                $query_refunded_order_status = $this->model_extension_payment_kevin->updateWebhookKevinRefund($update_order);
             }
             $query_refunded_order_status = false;
             $payment_status = false;
