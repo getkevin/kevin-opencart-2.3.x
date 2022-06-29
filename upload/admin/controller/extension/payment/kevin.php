@@ -1,7 +1,7 @@
 <?php
 /*
 * 2020 kevin. payment  for OpenCart version 2.3.x.x
-* @version 1.0.1.2
+* @version 1.0.1.3
 *
 * NOTICE OF LICENSE
 *
@@ -10,7 +10,7 @@
 * It is also available through the world-wide-web at this URL:
 * http://opensource.org/licenses/afl-3.0.php
 *
-*  @author 2020 kevin. <help@kevin.eu>
+*  @author 2021 kevin. <help@kevin.eu>
 *  @copyright kevin.
 *  @license http://opensource.org/licenses/afl-3.0.php Academic Free License (AFL 3.0)
 */
@@ -21,7 +21,8 @@ class ControllerExtensionPaymentKevin extends Controller
     private $error = [];
 
     private $lib_version = '0.3';
-    private $plugin_version = '1.0.1.2';
+    private $plugin_version = KEVIN_VERSION;
+    private $module_name = 'kevin';
 
     public function install()
     {
@@ -29,23 +30,16 @@ class ControllerExtensionPaymentKevin extends Controller
         $this->model_extension_payment_kevin->install();
     }
 
-    /*
-        public function uninstall(){
-            $this->load->model('extension/payment/kevin');
-            $this->model_extension_payment_kevin->uninstall();
-        }
-    */
-
     public function getProjectSettings()
     {
         require_once DIR_CATALOG.'/model/extension/payment/kevin/vendor/autoload.php';
-        $clientId = !empty($this->config->get('kevin_client_id')) ? $this->config->get('kevin_client_id') : '';
-        $clientSecret = !empty($this->config->get('kevin_client_secret')) ? $this->config->get('kevin_client_secret') : '';
+        $clientId = $this->config->get('kevin_client_id') ?: '';
+        $clientSecret = $this->config->get('kevin_client_secret') ?: '';
 
         $options = [
             'error' => 'array',
             'version' => $this->lib_version,
-            'pluginVersion' => $this->plugin_version,
+            'pluginVersion' => (string) KEVIN_VERSION,
             'pluginPlatform' => 'OpenCart',
             'pluginPlatformVersion' => (string) VERSION,
         ];
@@ -67,7 +61,8 @@ class ControllerExtensionPaymentKevin extends Controller
         $this->load->model('extension/payment/kevin');
         $this->load->language('extension/payment/kevin');
 
-        $this->document->setTitle($this->language->get('heading_title'));
+        $this->document->setTitle(strip_tags($this->language->get('heading_title')));
+        $data['heading_title'] = $this->language->get('heading_title');
 
         $this->load->model('setting/setting');
 
@@ -94,7 +89,7 @@ class ControllerExtensionPaymentKevin extends Controller
         }
 
         if (!empty($project['allowedRefundsFor'])) {
-            $data['refunds'] = ' Refunds is allowed.';
+            $data['refunds'] = $this->language->get('text_refund');
         } else {
             $data['refunds'] = '';
         }
@@ -105,16 +100,16 @@ class ControllerExtensionPaymentKevin extends Controller
             $data['payment_methods'] = true;
             foreach ($project['paymentMethods'] as $method) {
                 if ($method == 'bank') {
-                    $data['payment_bank'] = ' Bank payment method is allowed.';
+                    $data['payment_bank'] = $this->language->get('text_payment_bank');
                 }
                 if ($method == 'card') {
-                    $data['payment_card'] = ' Card payment method is allowed.';
+                    $data['payment_card'] = $this->language->get('text_payment_card');
                 }
             }
         }
 
         if (!empty($project['isSandbox'])) {
-            $data['text_sandbox_alert'] = '<span style="font-weight: 600; color:red;">kevin.</span> payment gateway is set to sandbox mode. For testing purposes only. Actual payments not available!';
+            $data['text_sandbox_alert'] = $this->language->get('text_sandbox_alert');
         } else {
             $data['text_sandbox_alert'] = '';
         }
@@ -350,7 +345,7 @@ class ControllerExtensionPaymentKevin extends Controller
         ];
 
         $data['breadcrumbs'][] = [
-            'text' => $this->language->get('heading_title'),
+            'text' => sprintf($this->language->get('heading_title'), $this->plugin_version),
             'href' => $this->url->link('extension/payment/kevin', 'token='.$this->session->data['token'], true),
         ];
 
@@ -436,8 +431,8 @@ class ControllerExtensionPaymentKevin extends Controller
 
         $this->load->model('tool/image');
 
-        $image_width = !empty($this->config->get('kevin_image_width')) ? $this->config->get('kevin_image_width') : 64;
-        $image_height = !empty($this->config->get('kevin_image_height')) ? $this->config->get('kevin_image_height') : 64;
+        $image_width = $this->config->get('kevin_image_width') ?: 64;
+        $image_height = $this->config->get('kevin_image_height') ?: 64;
 
         if (!empty($this->config->get('kevin_image')) && is_file(DIR_IMAGE.$this->config->get('kevin_image'))) {
             $data['thumb'] = $this->model_tool_image->resize($this->config->get('kevin_image'), $image_width, $image_height);
@@ -807,6 +802,10 @@ class ControllerExtensionPaymentKevin extends Controller
 
         if (empty($this->request->post['kevin_client_company'])) {
             $this->error['client_company'] = $this->language->get('error_client_company');
+        }
+
+        if (!empty($this->request->post['kevin_client_company']) && preg_match('/^[\w\s]+$/', $this->request->post['kevin_client_company']) == false) {
+            $this->error['client_company'] = $this->language->get('error_client_c_symbol');
         }
 
         // order statuses

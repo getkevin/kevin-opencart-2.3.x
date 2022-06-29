@@ -1,7 +1,7 @@
 <?php
 /*
 * 2020 kevin. payment  for OpenCart version 2.3.x.x
-* @version 1.0.1.2
+* @version 1.0.1.3
 *
 * NOTICE OF LICENSE
 *
@@ -92,8 +92,6 @@ class ModelExtensionPaymentKevin extends Model
         if (!$query_action->num_rows) {
             $this->db->query('ALTER TABLE `'.DB_PREFIX.'kevin_order` ADD `refund_action_id` int(11) NOT NULL AFTER order_status_id ');
         }
-
-        // $query_refund_table = $this->db->query("DESCRIBE `" . DB_PREFIX . "kevin_refund` ");
     }
 
     public function checkKevinDB()

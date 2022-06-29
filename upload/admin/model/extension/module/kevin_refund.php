@@ -1,7 +1,7 @@
 <?php
 /*
 * 2020 kevin. payment  for OpenCart version 2.3.x.x
-* @version 1.0.1.2
+* @version 1.0.1.3
 *
 * NOTICE OF LICENSE
 *
@@ -104,8 +104,6 @@ class ModelExtensionModuleKevinRefund extends Model
         } else {
             $sql .= ' GROUP BY ko.order_id ORDER BY o.order_id';
         }
-
-        // $sql .= " GROUP BY ko.order_id ";
 
         if (isset($data['order']) && ($data['order'] == 'DESC')) {
             $sql .= ' DESC';
@@ -231,7 +229,7 @@ class ModelExtensionModuleKevinRefund extends Model
                 ];
             }
         }
-        // echo '<pre>fin'; print_r( $products); echo '</pre>';
+
         return $products;
     }
 

@@ -1,7 +1,7 @@
 <?php
 /*
 * 2020 kevin. payment  for OpenCart version 2.3.x.x
-* @version 1.0.1.2
+* @version 1.0.1.3
 *
 * NOTICE OF LICENSE
 *
@@ -21,7 +21,7 @@ class ControllerExtensionPaymentKevin extends Controller
     private $type = 'payment';
     private $name = 'kevin';
     private $lib_version = '0.3';
-    private $plugin_version = '1.0.1.2';
+    private $plugin_version = '1.0.1.3';
 
     public function index()
     {
@@ -52,9 +52,7 @@ class ControllerExtensionPaymentKevin extends Controller
             'text_title',
             'text_order_info',
             'text_loading',
-            // 'text_payment_method',
             'text_status',
-        //	'text_status_group',
             'text_payment_id',
             'text_card_name',
             'text_select_country',
@@ -94,7 +92,7 @@ class ControllerExtensionPaymentKevin extends Controller
         }
 
         $countries = $kevinClient->auth()->getCountries();
-        // $countryCodes = array("LT", "LV", "EE");
+
         $countryCodes = $countries['data'];
 
         // select  country for banks
@@ -119,7 +117,7 @@ class ControllerExtensionPaymentKevin extends Controller
         $banks = $kevinClient->auth()->getBanks($country_code);
 
         $project_settings = $kevinClient->auth()->getProjectSettings();
-        //	echo '<pre>'; print_r($project_settings); echo '</pre>';
+
         $payment_methods = $project_settings['paymentMethods'];
 
         // card first
@@ -146,10 +144,12 @@ class ControllerExtensionPaymentKevin extends Controller
 
         $data['text_sandbox_alert'] = '';
         if ($project_settings['isSandbox']) {
-            $data['text_sandbox_alert'] = 'This payment method is set to Sandbox mode. Only for test payments. Real payments is not available!';
+            $data['text_sandbox_alert'] = $this->language->get('text_sandbox_alert');
         }
 
-        if (file_exists(DIR_APPLICATION.'controller/extension/payment/kevin_image/credit_card_icon.png')) {
+        if (@getimagesize('https://cdn.kevin.eu/banks/images/VISA_MC.png')) {
+            $data['credit_card_icon'] = 'https://cdn.kevin.eu/banks/images/VISA_MC.png';
+        } elseif (file_exists(DIR_APPLICATION.'controller/extension/payment/kevin_image/credit_card_icon.png')) {
             $data['credit_card_icon'] = $this->config->get('config_url').'catalog/controller/extension/payment/kevin_image/credit_card_icon.png';
         } else {
             $data['credit_card_icon'] = '';
@@ -194,8 +194,8 @@ class ControllerExtensionPaymentKevin extends Controller
         } else {
             $bank_id = '';
             $payment_method = '';
-            $this->session->data['error'] = 'Data for payment is missing! Please try again, or choose another payment method.';
-            $this->KevinLog($this->session->data['error']);
+            $this->session->data['error'] = $this->language->get('error_missing_data');
+            $this->KevinLog('Data for payment is missing! Please try again, or choose another payment method.');
             $this->response->redirect($this->url->link('checkout/cart', '', true));
         }
 
@@ -328,13 +328,11 @@ class ControllerExtensionPaymentKevin extends Controller
         } else {
             $log_data = 'Answer on Redirect kevin... No payment options using this payment method available.';
             $this->KevinLog($log_data);
-            $this->session->data['error'] = 'No payment options using this payment method available.';
+            $this->session->data['error'] = $this->language->get('error_payment_option');
             $this->response->redirect($this->url->link('checkout/cart', '', true));
         }
 
         $init_payment = $kevinClient->payment()->initPayment($payment_attr);
-
-        //	echo '<pre>response:';	print_r($init_payment); echo '</pre>'; die;
         if (!empty($init_payment['id'])) {
             $payment_id = $init_payment['id'];
         } else {
@@ -369,23 +367,13 @@ class ControllerExtensionPaymentKevin extends Controller
         /* log */
         $log_data = 'Answer on Redirect kevin... Payment Method: '.$payment_method.'; Payment ID: '.$payment_id.'; Order ID: '.$order_id.'; Payment Status: '.$get_payment['statusGroup'].'; Total: '.$get_payment['amount'].$get_payment['currencyCode'].'; Bank ID: '.$bank_id.'.';
         $this->KevinLog($log_data);
-        /*
-        if (!empty($order_info['payment_iso_code_2'])) {
-            $current_country_code = $order_info['payment_iso_code_2'];
-        } else if (isset($this->session->data['iso_code_2'])) {
-            $current_country_code = $this->session->data['iso_code_2'];
-        }
-        */
-        $lang_code = $this->language->get('code');
-        $available_lang = ['en', 'lt', 'lv', 'ee', 'fi', 'se', 'ru'];
-        if (in_array($lang_code, $available_lang)) {
-            $lang = $lang_code;
-        } else {
-            $lang = 'en';
-        }
+
+        $lang = $this->language->get('code');
         unset($this->session->data['order_id']);
-        // header('Location:' . $init_payment['confirmLink'] . '&amp;lang=' . $lang);
-        $this->response->redirect($init_payment['confirmLink'].'&amp;lang='.$lang);
+
+        $init_payment['confirmLink'] .= (parse_url($init_payment['confirmLink'], \PHP_URL_QUERY) ? '&' : '?').'lang='.$lang;
+
+        $this->response->redirect($init_payment['confirmLink']);
     }
 
     public function confirm()
@@ -430,14 +418,18 @@ class ControllerExtensionPaymentKevin extends Controller
         } else {
             $order_id = 0;
             $payment_method = '';
-            $this->session->data['error'] = 'An error occurred. Order Session have been ended! Please try again.';
-            $this->KevinLog($this->session->data['error']);
+            $this->session->data['error'] = $this->language->get('error_order_session');
+            $this->KevinLog('An error occurred. Order Session have been ended!');
             $this->response->redirect($this->url->link('checkout/cart', '', true));
         }
 
         $order_info = $this->model_checkout_order->getOrder($order_id);
 
         switch ($statusGroup) {
+            case 'started':
+                $new_status_id = $this->config->get('kevin_started_status_id');
+                $new_status = $statusGroup;
+                break;
             case 'pending':
                 $new_status_id = $this->config->get('kevin_pending_status_id');
                 $new_status = $statusGroup;
@@ -456,13 +448,14 @@ class ControllerExtensionPaymentKevin extends Controller
         }
 
         if (!$new_status_id) {
-            $this->session->data['error'] = 'An error occurred! On response not received any statusGroup. Description: Server Error. Please try again.';
-            $this->KevinLog($this->session->data['error']);
+            $this->session->data['error'] = $this->language->get('error_response');
+            $this->KevinLog('An error occurred! On response not received any statusGroup. Description: Server Error.');
             $this->response->redirect($this->url->link('checkout/cart', '', true));
         }
 
         /* log */
         $log_data = 'Answer on Confirm kevin... Payment Method: '.$payment_method.'; Payment ID: '.$payment_id.'; Order ID: '.$order_info['order_id'].'; Payment Status: '.$new_status.'.';
+        $this->KevinLog($log_data);
 
         if ($new_status == 'completed') {
             $this->response->redirect($this->url->link('checkout/success', '', true));
@@ -470,6 +463,8 @@ class ControllerExtensionPaymentKevin extends Controller
             $this->response->redirect($this->url->link('checkout/success', '', true));
         } elseif ($new_status == 'failed') {
             $this->response->redirect($this->url->link('checkout/failure', '', true));
+        } elseif ($new_status == 'started') {
+            $this->response->redirect($this->url->link('checkout/cart', '', true));
         } else {
             $this->session->data['error'] = $this->language->get('error_kevin_payment');
             $this->response->redirect($this->url->link('checkout/cart'));
@@ -605,8 +600,7 @@ class ControllerExtensionPaymentKevin extends Controller
         $order_info = $this->model_checkout_order->getOrder($order_id);
 
         $log_data = 'Answer on WebHook kevin... Payment Method: '.$payment_method.'; Payment ID: '.$payment_id.'; Order ID: '.$order_info['order_id'].'; Payment Status: '.$new_status.'.';
-
-        // $old_status_id = $order_info['order_status_id'];
+        $this->KevinLog($log_data);
 
         if ($payment_method == 'card') {
             $update_order['status'] = !empty($get_payment_status['hybridStatus']) ? $get_payment_status['hybridStatus'] : $get_payment_status['cardStatus'];
@@ -852,7 +846,8 @@ class ControllerExtensionPaymentKevin extends Controller
             header($this->request->server['SERVER_PROTOCOL'].' 200 ');
         } else {
             if ($get_refund_status['statusGroup'] != 'completed') {
-                $query_refunded_order_status = $this->model_extension_payment_kevin->updateWebhookKevinRefund($update_order); // do not change statusGroup till signatures match
+                // do not change statusGroup till signatures match
+                $query_refunded_order_status = $this->model_extension_payment_kevin->updateWebhookKevinRefund($update_order);
             }
             $query_refunded_order_status = false;
             $payment_status = false;
@@ -922,7 +917,6 @@ class ControllerExtensionPaymentKevin extends Controller
         $message .= '  <body>';
         $message .= $logo_view.'<br /><br /><br />';
         $message .= html_entity_decode($body, \ENT_QUOTES, 'UTF-8');
-        // $message .= $body;
         $message .= '</body>'."\n";
         $message .= '</html>'."\n";
 
