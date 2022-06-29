@@ -1,7 +1,7 @@
 <?php
 /*
 * 2020 kevin. payment  for OpenCart version 2.3.x.x
-* @version 1.0.1.4
+* @version 1.0.1.3
 *
 * NOTICE OF LICENSE
 *
@@ -30,16 +30,21 @@ $_['text_status_group'] = 'Grupa statusu zamówienia: %s';
 $_['text_subject'] = '%s zwróciło Twoje pieniądze. ID zamówienia: %s';
 $_['text_thank_you'] = 'Dziękujemy za zakup <br /> <strong> %s </strong>';
 $_['text_title'] = 'kevin.';
+$_['text_sandbox_alert'] = 'Ta metoda płatności jest skonfigurowana w trybie Sandbox. Tylko dla płatności testowych. Brak dostępnych rzeczywistych płatności!';
 
-//errors
+// Error
+$_['error_missing_data'] = 'Brak szczegółów płatności! Spróbuj ponownie lub wybierz inną metodę płatności.';
+$_['error_order_session'] = 'Wystąpił błąd. Sesja zakończona! Spróbuj ponownie.';
+$_['error_payment_option'] = 'Płatność tą metodą płatności nie jest dostępna.';
 $_['error_bank'] = 'Bank nie został wybrany! Wybierz swój bank.';
 $_['error_currency'] = 'Tylko waluta & euro; jest dozwolona dla tej metody płatności. Wybierz walutę <strong> & euro;</strong>.';
 $_['error_kevin_payment'] = 'Wystąpił błąd. Skontaktuj się ze sprzedawcą, aby uzyskać więcej informacji lub wypróbuj inną metodę płatności.';
 $_['error_kevin_payment_id'] = 'Wystąpił błąd. Identyfikator płatności nie został zwrócony z systemu płatności. Aby uzyskać więcej informacji, skontaktuj się ze sprzedawcą.';
+$_['error_response'] = 'Wystąpił błąd! Opis: błąd serwera. Spróbuj ponownie.';
 
-//Button
+// Button
 $_['button_confirm'] = 'Potwierdź Zamówienie';
 $_['button_search'] = 'Autouzupełnianie Wyszukiwania';
 
-//Help
+// help
 $_['help_serch_bank'] = 'Szukaj Bank';

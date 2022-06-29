@@ -10,11 +10,10 @@
 * It is also available through the world-wide-web at this URL:
 * http://opensource.org/licenses/afl-3.0.php
 *
-*  @author 2020 kevin. <help@kevin.eu>
+*  @author 2021 kevin. <help@kevin.eu>
 *  @copyright kevin.
 *  @license http://opensource.org/licenses/afl-3.0.php Academic Free License (AFL 3.0)
 */
-define('KEVIN_VERSION', '1.0.1.3');
 use Kevin\Client;
 
 class ControllerExtensionPaymentKevin extends Controller
@@ -23,6 +22,7 @@ class ControllerExtensionPaymentKevin extends Controller
 
     private $lib_version = '0.3';
     private $plugin_version = KEVIN_VERSION;
+    private $module_name = 'kevin';
 
     public function install()
     {
@@ -89,7 +89,7 @@ class ControllerExtensionPaymentKevin extends Controller
         }
 
         if (!empty($project['allowedRefundsFor'])) {
-            $data['refunds'] = ' Refunds is allowed.';
+            $data['refunds'] = $this->language->get('text_refund');
         } else {
             $data['refunds'] = '';
         }
@@ -100,21 +100,21 @@ class ControllerExtensionPaymentKevin extends Controller
             $data['payment_methods'] = true;
             foreach ($project['paymentMethods'] as $method) {
                 if ($method == 'bank') {
-                    $data['payment_bank'] = ' Bank payment method is allowed.';
+                    $data['payment_bank'] = $this->language->get('text_payment_bank');
                 }
                 if ($method == 'card') {
-                    $data['payment_card'] = ' Card payment method is allowed.';
+                    $data['payment_card'] = $this->language->get('text_payment_card');
                 }
             }
         }
 
         if (!empty($project['isSandbox'])) {
-            $data['text_sandbox_alert'] = '<span style="font-weight: 600; color:red;">kevin.</span> payment gateway is set to sandbox mode. For testing purposes only. Actual payments not available!';
+            $data['text_sandbox_alert'] = $this->language->get('text_sandbox_alert');
         } else {
             $data['text_sandbox_alert'] = '';
         }
 
-        //checking if kevin DB is updated on module update/reinstall.
+        // checking if kevin DB is updated on module update/reinstall.
         $DB_query = $this->model_extension_payment_kevin->checkKevinDB();
 
         if ($DB_query) {
@@ -260,7 +260,6 @@ class ControllerExtensionPaymentKevin extends Controller
             $data['error_client_endpointSecret'] = '';
         }
 
-        ////
         if (isset($this->error['started_status'])) {
             $data['error_started_status'] = $this->error['started_status'];
         } else {
@@ -315,8 +314,6 @@ class ControllerExtensionPaymentKevin extends Controller
             $data['error_refunded_action'] = '';
         }
 
-        //////
-
         if (isset($this->error['client_company'])) {
             $data['error_client_company'] = $this->error['client_company'];
         } else {
@@ -348,7 +345,7 @@ class ControllerExtensionPaymentKevin extends Controller
         ];
 
         $data['breadcrumbs'][] = [
-            'text' => $this->language->get('heading_title'),
+            'text' => sprintf($this->language->get('heading_title'), $this->plugin_version),
             'href' => $this->url->link('extension/payment/kevin', 'token='.$this->session->data['token'], true),
         ];
 
@@ -368,7 +365,7 @@ class ControllerExtensionPaymentKevin extends Controller
             $data['kevin_client_secret'] = $this->config->get('kevin_client_secret');
         }
 
-        //endpointSecret
+        // endpointSecret
         if (isset($this->request->post['kevin_client_endpointSecret'])) {
             $data['kevin_client_endpointSecret'] = $this->request->post['kevin_client_endpointSecret'];
         } else {
@@ -434,8 +431,8 @@ class ControllerExtensionPaymentKevin extends Controller
 
         $this->load->model('tool/image');
 
-        $image_width = !empty($this->config->get('kevin_image_width')) ? $this->config->get('kevin_image_width') : 64;
-        $image_height = !empty($this->config->get('kevin_image_height')) ? $this->config->get('kevin_image_height') : 64;
+        $image_width = $this->config->get('kevin_image_width') ?: 64;
+        $image_height = $this->config->get('kevin_image_height') ?: 64;
 
         if (!empty($this->config->get('kevin_image')) && is_file(DIR_IMAGE.$this->config->get('kevin_image'))) {
             $data['thumb'] = $this->model_tool_image->resize($this->config->get('kevin_image'), $image_width, $image_height);
@@ -573,7 +570,7 @@ class ControllerExtensionPaymentKevin extends Controller
             $data['kevin_refunded_action_id'] = $this->config->get('kevin_refunded_action_id');
         }
 
-        //refund log view
+        // refund log view
         $data['download_refund_log'] = $this->url->link('extension/payment/kevin/download_refund_log', 'token='.$this->session->data['token'], true);
         $data['clear_refund_log'] = $this->url->link('extension/payment/kevin/clear_refund_log', 'token='.$this->session->data['token'], true);
 
@@ -612,7 +609,7 @@ class ControllerExtensionPaymentKevin extends Controller
             }
         }
 
-        //payment log view
+        // payment log view
         $data['download_payment_log'] = $this->url->link('extension/payment/kevin/download_payment_log', 'token='.$this->session->data['token'], true);
         $data['clear_payment_log'] = $this->url->link('extension/payment/kevin/clear_payment_log', 'token='.$this->session->data['token'], true);
 
@@ -836,7 +833,7 @@ class ControllerExtensionPaymentKevin extends Controller
             $this->error['partial_status'] = $this->language->get('error_partial_status');
         }
 
-        //refund actions
+        // refund actions
         if (empty($this->request->post['kevin_created_action_id'])) {
             $this->error['created_action'] = $this->language->get('error_created_action');
         }
