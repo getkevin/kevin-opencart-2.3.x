@@ -61,7 +61,7 @@ $_['text_telephone'] = 'Telefon';
 $_['text_upc'] = 'UPC:';
 $_['text_upload'] = 'Soubor byl úspěšně nahrán!';
 
-//Button
+// Button
 $_['button_cancel'] = 'Zrušit';
 $_['button_edit'] = 'Upravit';
 $_['button_refund'] = 'Vytvořit refundaci';

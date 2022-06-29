@@ -61,7 +61,7 @@ $_['text_telephone'] = 'Telefone';
 $_['text_upc'] = 'UPC:';
 $_['text_upload'] = 'O seu ficheiro foi carregado com sucesso!';
 
-//Button
+// Button
 $_['button_cancel'] = 'Cancelar';
 $_['button_edit'] = 'Editar';
 $_['button_refund'] = 'Criar Reembolso';

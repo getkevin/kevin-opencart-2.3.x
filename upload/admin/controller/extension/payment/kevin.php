@@ -30,18 +30,11 @@ class ControllerExtensionPaymentKevin extends Controller
         $this->model_extension_payment_kevin->install();
     }
 
-    /*
-        public function uninstall(){
-            $this->load->model('extension/payment/kevin');
-            $this->model_extension_payment_kevin->uninstall();
-        }
-    */
-
     public function getProjectSettings()
     {
         require_once DIR_CATALOG.'/model/extension/payment/kevin/vendor/autoload.php';
-        $clientId = !empty($this->config->get('kevin_client_id')) ? $this->config->get('kevin_client_id') : '';
-        $clientSecret = !empty($this->config->get('kevin_client_secret')) ? $this->config->get('kevin_client_secret') : '';
+        $clientId = $this->config->get('kevin_client_id') ?: '';
+        $clientSecret = $this->config->get('kevin_client_secret') ?: '';
 
         $options = [
             'error' => 'array',
